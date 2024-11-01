@@ -1,0 +1,70 @@
+# 11.01
+
+## Git復習（研修報告用）
+
+
+## NWブラッシュアップ
+(enablepassword忘れ)[https://shinmeisha.co.jp/newsroom/2020/02/18/cisco-%E3%82%B9%E3%82%A4%E3%83%83%E3%83%81%E3%81%A7%E3%83%91%E3%82%B9%E3%83%AF%E3%83%BC%E3%83%89%E3%82%92%E5%BF%98%E3%82%8C%E3%81%9F%E5%A0%B4%E5%90%88%E3%81%AE%E5%BE%A9%E6%97%A7%E6%89%8B%E9%A0%86/] 
+    ⇒ PacketTracerではMODEスイッチが操作できないようなので実機確認。
+
+### コンソール接続～SSH接続
+
+#### SW01の管理VLANにIPアドレスを設定
+~~~.pkt
+SW01(config)#int vlan 1
+SW01(config-if)#ip address 192.168.1.2 255.255.255.0
+~~~
+
+~~~.pkt
+SW01#show running config
+
+interface Vlan1
+(一部略)
+hostname SW01
+!
+enable secret 5 $1$foobar
+!
+ip ssh version 2
+ip domain-name test.com
+!
+username hoge privilege 1 password 0 huga
+
+ ip address 192.168.1.2 255.255.255.0
+!
+line con 0
+!
+line vty 0 4
+ login local
+ transport input ssh
+line vty 5 15
+ login
+ ~~~
+
+### NTP
+~~~.pkt
+SW01(config)#do show clock
+*0:18:21.275 UTC Mon Mar 1 1993
+---時間が誤り。
+
+SW01(config)#do show ntp status
+Clock is unsynchronized, stratum 16, no reference clock
+nominal freq is 250.0000 Hz, actual freq is 249.9990 Hz, precision is 2**24
+reference time is 00000000.00000000 (00:00:00.000 UTC Mon Jan 1 1990)
+clock offset is 0.00 msec, root delay is 0.00  msec
+root dispersion is 0.00 msec, peer dispersion is 0.00 msec.
+loopfilter state is 'FSET' (Drift set from file), drift is - 0.000001193 s/s system poll interval is 4, never updated.
+SW01(config)#do show clock
+*0:52:36.329 UTC Mon Mar 1 1993
+SW01(config)#do show clock
+*0:52:50.403 UTC Mon Mar 1 1993
+---ちょっと待つ。
+SW01(config)#do show clock
+11:32:7.162 UTC Fri Nov 1 2024
+~~~
+
+## JP1/AJS3構築調査
+### サーバ群
+ - Manager
+ - Agent
+ - Viewクライアント
+
