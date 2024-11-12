@@ -48,7 +48,7 @@ iface eth0 inet static
 ~~~
 ネットワークのリスタート
 ~~~.ash
-/etc/network # /etc/init.d/networking restart
+# /etc/init.d/networking restart
 ~~~
 
 ##### 初期設定済みconfigを流し込む
