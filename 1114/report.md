@@ -5,7 +5,8 @@
 ### ASDM不具合調査
 Ubuntu～ASAv間のパケットをキャプチャするも、TCPコネクションに問題はなく、TLSで通信が出来ていたということまでしか確認できなかった。
 
-フォーラム等に倣い、ASAv~ExternalConnector~ホストオンリーアダプターの経路とし、ホストOSのブラウザでASAvにアクセスするとASDMのダウンロードボタンが表示された。
+フォーラム等に倣い、ASAv⇔ExternalConnector⇔ホストオンリーアダプターの経路とし、ホストOSのブラウザでASAvにアクセスするとASDMのダウンロードボタンが表示された。
+
 ![lab](https://github.com/220TI/Training-Reports/tree/master/1114/lab.png)
 
 ![ホストオンリー](https://github.com/220TI/Training-Reports/tree/master/1114/hostonly.png)
