@@ -13,7 +13,7 @@ Ubuntu～ASAv間のパケットをキャプチャするも、TCPコネクショ�
 
 ![ASDMWEB](https://github.com/220TI/Training-Reports/tree/master/1114/ASDM_WEB.png)
 
-![ホストオンリー](https://github.com/220TI/Training-Reports/tree/master/1114/ASDM.png)
+![ASDM](https://github.com/220TI/Training-Reports/tree/master/1114/ASDM.png)
 
 ### ASAvキャッチアップ
 
