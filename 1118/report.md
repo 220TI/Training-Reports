@@ -20,7 +20,7 @@ memo: VSCodeにて、`Ctrl+K` ⇒ `V`を押下するとプレビューが表示�
 ・ [問題解決の手法](#問題解決の手法)
 - [デバッグ](#デバッグ)
 - [ping](#ping)
-
+- [traceroute](#traceroute)
 
 ### WLAN
 
