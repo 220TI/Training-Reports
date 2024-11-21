@@ -3,8 +3,8 @@
 ## BGP構築
 
 - RT2とRT3でeBGPを設定する。
-- 
-![ここに画像]()
+  
+![pic1](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1121/1121_1.png)
 
 ~~~
 RT2(config)#router bgp 10
@@ -115,8 +115,9 @@ B     1.0.0.0/8 [20/0] via 10.1.1.1, 03:10:45
 ~~~
 
 ## 再配送
-実際の環境では複数のルーティングプロトコルが混在している。例えば、AS内部でのルーティングはOSPF等のIGPが用いられ、AS間のルーティングではBGPが用いられる。この際、BGPピアにOSPFで学習したルートを再配送する必要がある。
+実際の環境では複数のルーティングプロトコルが混在している。例えば、AS内部でのルーティングはOSPF等のIGPが用いられ、AS間のルーティングではBGPが用いられる。この際、BGPピアにOSPFで学習したルートを再配送する場合がある。
 
+![pic2](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1121/1121_2.png)
 
 ### 必須知識
 - それぞれのルーティングプロトコル
