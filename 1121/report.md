@@ -1,8 +1,195 @@
 # 1121
 
+## Terraform
+CML上へのノードのデプロイを簡易化するためキャッチアップ。
+
+### Pathを通す
+~~~ps1
+PS C:\Users\hoge\Desktop\TrainingReports> terraform -v
+Terraform v1.9.8
+on windows_amd64
+~~~
+
+### provider
+各サービスのAPIと接続するためのプラグイン。
+
+required_providersブロックを用いて依存性を定義する。CML2に対しては下記が提供されている。
+
+[cml2 Provider](https://registry.terraform.io/providers/CiscoDevNet/cml2/latest/docs)
+
+### CML2ラボにスイッチを置いてみる
+
+~~~main.tf
+terraform {
+  required_providers {
+    cml2 = {
+      source  = "registry.terraform.io/ciscodevnet/cml2"
+      version = "~> 0.7.0"
+    }
+  }
+}
+
+provider "cml2" {
+  address     = "https://192.168.184.128"
+  username    = "admin"
+  password    = "password"
+  skip_verify = true
+}
+
+resource "cml2_lab" "lab1" {
+  title = "TFtest"
+}
+
+resource "cml2_node" "sw" {
+  lab_id         = cml2_lab.lab1.id
+  nodedefinition = "unmanaged_switch"
+  label          = "SW1"
+  x              = 160
+  y              = 80
+}
+
+~~~
+
+### Terraformの初期化
+
+~~~
+PS C:\Users\hoge\Desktop\terraform> terraform init 
+Initializing the backend...
+Initializing provider plugins...
+- Finding ciscodevnet/cml2 versions matching "~> 0.7.0"...
+# providerを探している...
+(略)
+
+Terraform has been successfully initialized!
+~~~
+
+### 実行プランの確認
+
+~~~
+PS C:\Users\hoge\Desktop\terraform> terraform plan
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # cml2_lab.lab1 will be created
+  + resource "cml2_lab" "lab1" {
+      + created     = (known after apply)
+      + description = (known after apply)
+      + groups      = (known after apply)
+      + id          = (known after apply)
+      + link_count  = (known after apply)
+      + modified    = (known after apply)
+      + node_count  = (known after apply)
+      + notes       = (known after apply)
+      + owner       = (known after apply)
+      + state       = (known after apply)
+      + title       = "TFtest"
+    }
+
+  # cml2_node.sw will be created
+  + resource "cml2_node" "sw" {
+      + boot_disk_size  = (known after apply)
+      + compute_id      = (known after apply)
+      + configuration   = (known after apply)
+      + cpu_limit       = (known after apply)
+      + cpus            = (known after apply)
+      + data_volume     = (known after apply)
+      + hide_links      = (known after apply)
+      + id              = (known after apply)
+      + imagedefinition = (known after apply)
+      + interfaces      = (known after apply)
+      + lab_id          = (known after apply)
+      + label           = "SW1"
+      + nodedefinition  = "unmanaged_switch"
+      + ram             = (known after apply)
+      + serial_devices  = (known after apply)
+      + state           = (known after apply)
+      + tags            = (known after apply)
+      + vnc_key         = (known after apply)
+      + x               = 160
+      + y               = 80
+    }
+
+Plan: 2 to add, 0 to change, 0 to destroy.
+
+# ラボとSWで計2個のインスタンスが作成されるとのことだろうか
+~~~
+
+### リソースの適用
+デプロイしていく。
+
+~~~
+PS C:\Users\hoge\Desktop\terraform> terraform apply
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # cml2_lab.lab1 will be created
+  + resource "cml2_lab" "lab1" {
+      + created     = (known after apply)
+      + description = (known after apply)
+      + groups      = (known after apply)
+      + id          = (known after apply)
+      + link_count  = (known after apply)
+      + modified    = (known after apply)
+      + node_count  = (known after apply)
+      + notes       = (known after apply)
+      + owner       = (known after apply)
+      + state       = (known after apply)
+      + title       = "TFtest"
+    }
+
+  # cml2_node.sw will be created
+  + resource "cml2_node" "sw" {
+      + boot_disk_size  = (known after apply)
+      + compute_id      = (known after apply)
+      + configuration   = (known after apply)
+      + cpu_limit       = (known after apply)
+      + cpus            = (known after apply)
+      + data_volume     = (known after apply)
+      + hide_links      = (known after apply)
+      + id              = (known after apply)
+      + imagedefinition = (known after apply)
+      + interfaces      = (known after apply)
+      + lab_id          = (known after apply)
+      + label           = "SW1"
+      + nodedefinition  = "unmanaged_switch"
+      + ram             = (known after apply)
+      + serial_devices  = (known after apply)
+      + state           = (known after apply)
+      + tags            = (known after apply)
+      + vnc_key         = (known after apply)
+      + x               = 160
+      + y               = 80
+    }
+
+Plan: 2 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+cml2_lab.lab1: Creating...
+cml2_lab.lab1: Creation complete after 1s [id=0429654e-0512-48e8-a7ba-c02d21a46781]
+cml2_node.sw: Creating...
+cml2_node.sw: Creation complete after 0s [id=a7ac3fb4-3e11-4c6b-90d9-d0b2e502786a]
+
+Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+~~~
+
+定義通りのラボ・SWがデプロイされた。
+
+![pic3](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1121/1121_3.png)
+
 ## BGP構築
 
-- RT2とRT3でeBGPを設定する。
+- AS10-RT2とAS20-RT3でeBGPを設定する。
   
 ![pic1](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1121/1121_1.png)
 
@@ -114,6 +301,8 @@ RT3#sh ip route bgp
 B     1.0.0.0/8 [20/0] via 10.1.1.1, 03:10:45
 ~~~
 
+
+
 ## 再配送
 実際の環境では複数のルーティングプロトコルが混在している。例えば、AS内部でのルーティングはOSPF等のIGPが用いられ、AS間のルーティングではBGPが用いられる。この際、BGPピアにOSPFで学習したルートを再配送する場合がある。
 
@@ -127,5 +316,11 @@ B     1.0.0.0/8 [20/0] via 10.1.1.1, 03:10:45
   - EIGRP
   - BGP
 - ルーティングループの防止
+    - フィルタリング
+    - ルートポイズニング
+    - スプリットホライゾン
 - route-map
-- 
+  
+  ## EIGRP
+Cisco独自のルーティングプロトコル。
+ディスタンスベクタ型（例：RIP）とリンクステート型（例：OSPF）両方の利点を備えているので、拡張ディスタンスベクタ型ルーティングまたはハイブリットルーティングと云われる。
