@@ -253,7 +253,7 @@ RT1(config)#router eigrp 10
 RT1(config-router)#network 192.168.1.0 0.0.0.255
 RT1(config-router)#network 192.168.2.0 0.0.0.255
 ~~~
-同様の要領で全てのルータの全てのIFに設定する。
+同様の要領で全てのルータに設定する。
 
 #### 確認
 
