@@ -56,7 +56,7 @@ EIGRP検証のため、ルータを複数プロビショニングする。
  - `logging synchronous`等の必須コンフィグを盛り込む
  - 機微な情報を`terraform.tfvars`に退避。
 
-![ここにディレクトリ構造](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1122/1122_1.png)
+![pic1](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1122/1122_1.png)
 
 ひし形にそれぞれ接続するイメージで書いてみる
 
@@ -178,9 +178,103 @@ file()で読み込ませるファイルの改行コードはLFにすること。
 
 IPアドレスのアサインやhostname等の機器により異なる部分の書き方が課題
 
-![完成画像](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1122/1122_2.png)
+![pic2](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1122/1122_2.png)
 
 
 ## EIGRP
 
-### シリアル接続
+### EIGRPの特徴
+
+- 拡張ディスタンスベクタ型ルーティング（ハイブリッドルーティングとも呼ばれる）: ディスタンスベクタ型のルーティングプロトコルで、経路計算に複数のメトリックを使用する。
+
+- DUAL（Diffusing Update Algorithm）による高速収束: ネットワークの状態変化に対して迅速に収束し、安定性を保つ。
+
+- 低いCPU負荷: ルーターの負荷が少なく、効率的に経路選択が可能。
+
+- 自動集約: デフォルトで自動的にネットワークを集約するが、手動で集約の調整も可能。
+
+- 手動によるルート集約: インターフェース単位で手動でルート集約が設定できる。
+
+- 不等コストロードバランシング: バリアンス値の設定により、コストの異なる経路でも負荷分散が可能。
+
+- 3つのテーブルを保持: 「ネイバーテーブル」「トポロジテーブル」「ルーティングテーブル」の3つのテーブルを持つ。
+
+### K値
+EIGRPで用いられる復号メトリック。
+
+- K1（帯域幅）: リンクの帯域幅。
+- 
+- K2（負荷）: リンクの現在の負荷。
+
+- K3（遅延）: パケットがリンクを通過するのにかかる時間。
+
+- K4（信頼性）: リンクの信頼性を示す値。
+
+- K5（MTU）: 最大伝送単位。
+
+デフォルトでは、帯域幅と遅延のみがメトリック計算に使われ、他のK値は0として扱われる。
+
+### 経路集約
+
+例えば、複数のサブネット（192.168.1.0/24、192.168.2.0/24、192.168.3.0/24）を持つ環境で、これらを1つの経路に集約することで、ルーティングテーブルのサイズを削減できる。
+~~~
+Router(config)# interface serial 0/0
+Router(config-if)# ip summary-address eigrp 1 192.168.0.0 255.255.252.0
+~~~
+この設定により、192.168.1.0/24、192.168.2.0/24、192.168.3.0/24 の3つのサブネットを192.168.0.0/22に集約し、ルーティングテーブルの簡素化が可能になる。このように集約することで、他のルーターに送るルーティング情報が少なくなり、ネットワークの安定性や効率が向上する。
+
+### FDとRD
+
+- FD (Feasible Distance): 自ルータから宛先ネットワークまでの合計メトリック。
+
+- RD (Reported Distance): ネイバルータから宛先ネットワークまでの合計メトリック（ネイバから報告されるメトリック）。RDはAD (Advertised Distance) とも呼ばれる。
+
+### サクセサとフィージブルサクセサ
+
+- サクセサ: EIGRPの最適経路のネクストホップで、FDが最も小さいネイバー。
+
+- フィージブルサクセサ:サクセサのFDより小さいRDを持つネイバー。「FD > RD」を満たす経路はループが発生しないことが保証されており、フィージブルサクセサはバックアップルートや不等コストロードバランシングのネクストホップとして利用される。
+
+### EIGRPにおける最適経路の選出
+
+1. 宛先ネットワークまでの全ネイバ経由のFD(Feasible Distance) を算出
+
+2. 最も小さいFDを持つネイバをサクセサとする
+
+3. サクセサのFDと各ネイバの RD (Reported Distance) を比較し、FD > RD となるネイバをフィージブルサクセサとする
+
+4. サクセサをネクストホップとする経路をルーティングテーブルに載せる
+
+### 構築
+
+![pic3](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1122/1122_3.png)
+~~~
+RT1(config)#router eigrp 10
+RT1(config-router)#network 192.168.1.0 0.0.0.255
+RT1(config-router)#network 192.168.2.0 0.0.0.255
+~~~
+同様の要領で全てのルータの全てのIFに設定する。
+
+#### 確認
+
+~~~
+RT4#sh ip eigrp topology
+EIGRP-IPv4 Topology Table for AS(10)/ID(192.168.4.1)
+
+P 192.168.3.0/24, 1 successors, FD is 3072
+        via 192.168.4.2 (3072/2816), GigabitEthernet0/0
+P 192.168.2.0/24, 1 successors, FD is 2816
+        via Connected, GigabitEthernet0/1
+P 192.168.1.0/24, 1 successors, FD is 3072
+        via 192.168.2.1 (3072/2816), GigabitEthernet0/1
+P 192.168.4.0/24, 1 successors, FD is 2816
+        via Connected, GigabitEthernet0/0
+~~~
+
+~~~
+RT4#sh ip route eigrp
+
+D     192.168.1.0/24 [90/3072] via 192.168.2.1, 00:00:49, GigabitEthernet0/1
+D     192.168.3.0/24 [90/3072] via 192.168.4.2, 00:00:49, GigabitEthernet0/0
+~~~
+全てのネットワークを認識しており、最適な経路(この場合単に近道)を選定できている。
