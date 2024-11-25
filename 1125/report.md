@@ -140,7 +140,7 @@ Cisco試験においては出題されるが、現場においては使われて
 
 
 ## VLAN間ルーティングとDHCP
-![pic1](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1122/1125_1.png)
+![pic1](https://raw.githubusercontent.com/220TI/Training-Reports/refs/heads/master/1125/1125_1.png)
 
 L3SW1によるVLAN間ルーティングを可能にするとともに、DHCPによりVLAN毎に適切なセグメントのIPアドレスをリースできるようにする。
 
