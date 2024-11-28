@@ -2,7 +2,6 @@
   - [SW~サーバ間のEtherchannel構築](#swサーバ間のetherchannel構築)
     - [SW設定](#sw設定)
     - [サーバ設定](#サーバ設定)
-      - [チームデバイス作成](#チームデバイス作成)
       - [チームとチームの設定(connection)を作成](#チームとチームの設定connectionを作成)
       - [チームのconnectionを編集](#チームのconnectionを編集)
       - [チームにIFを追加](#チームにifを追加)
@@ -20,6 +19,7 @@
 | **desirable (PAgP)** | × | ○         | ○                | -              | -             |
 | **passive (LACP)** | ×  | -           | -                | ×              | ○             |
 | **active (LACP)** | ×   | -           | -                | ○              | ○             |
+
 Cisco独自プロトコルであるDTPと同じく、"desirable""とauto"というモードがあると覚える。
 
 ## SW~サーバ間のEtherchannel構築
@@ -53,7 +53,6 @@ AlmaLinux release 8.10 (Cerulean Leopard)
 Linux almalinux 4.18.0-553.16.1.el8_10.x86_64 #1 SMP Thu Aug 8 07:11:46 EDT 2024 x86_64 x86_64 x86_64 GNU/Linux
 ~~~
 
-#### チームデバイス作成
 #### チームとチームの設定(connection)を作成
 ~~~
 [cisco@almalinux ~]$ sudo nmcli c add type team ifname team0 con-name team-team0
